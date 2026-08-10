@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#080b10">
+<title>Fishing Dashboard</title>
+<style>
+:root{--bg:#080b10;--card:#10151d;--card2:#0c1118;--text:#f4f7fb;--muted:#8e9aaa;--line:#202936;--accent:#62b0ff;--good:#62d68b;--warn:#ffd166}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;overflow:hidden}
+body{display:flex;align-items:stretch;justify-content:center}
+#app{width:100%;height:100%;max-width:1400px;padding:14px;display:grid;grid-template-rows:auto 1fr;gap:12px}
+header{display:flex;align-items:center;justify-content:space-between;padding:4px 8px}
+.brand{font-size:clamp(14px,2vw,22px);font-weight:700;letter-spacing:.04em;color:#dfe7f2}
+#clock{font-size:clamp(28px,5vw,56px);font-weight:800;line-height:1}
+#date{font-size:clamp(12px,1.8vw,18px);color:var(--muted);margin-top:4px}
+#areaTabs{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none}
+#areaTabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;border:1px solid var(--line);background:var(--card2);color:#cbd5e1;border-radius:12px;padding:9px 12px;font-weight:700;font-size:clamp(12px,1.5vw,16px)}
+.tab.active{border-color:#3e78aa;background:#122235;color:#fff}
+main{min-height:0;display:grid;grid-template-columns:1.05fr 1fr;gap:12px}
+.card{background:linear-gradient(145deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:18px;padding:16px;min-height:0;overflow:hidden}
+.title{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.title h2{margin:0;font-size:clamp(15px,2vw,22px)}
+.small{color:var(--muted);font-size:12px}
+.weatherTop{display:flex;align-items:center;gap:14px}
+.temp{font-size:clamp(42px,7vw,76px);font-weight:850;line-height:.9}
+.desc{font-size:clamp(14px,2vw,20px);font-weight:650}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}
+.metric{background:#0b1017;border:1px solid var(--line);border-radius:12px;padding:10px}
+.metric b{display:block;font-size:clamp(15px,2vw,22px)}
+.metric span{color:var(--muted);font-size:11px}
+.tides{display:grid;grid-template-columns:1fr 1fr;gap:8px;overflow:auto;max-height:calc(100% - 52px)}
+.tide{border:1px solid var(--line);background:#0b1017;border-radius:12px;padding:11px}
+.tide .type{font-weight:800;font-size:13px}
+.tide .time{font-size:clamp(18px,2.5vw,27px);font-weight:800;margin-top:3px}
+.tide .height{color:var(--muted);font-size:12px}
+.next{border:1px solid #315d7d;background:#0e1b27;border-radius:14px;padding:12px;margin-bottom:9px}
+.next b{color:#fff}
+.status{margin-top:10px;color:var(--muted);font-size:11px}
+@media(max-width:800px){
+  #app{padding:10px;gap:8px}
+  header{padding:2px 4px}
+  main{grid-template-columns:1fr 1fr;gap:8px}
+  .card{padding:12px;border-radius:14px}
+  .metrics{grid-template-columns:repeat(2,1fr)}
+  .tides{grid-template-columns:1fr}
+}
+@media(max-width:560px){
+  html,body{overflow:auto}
+  #app{height:auto;min-height:100%;overflow:visible}
+  main{grid-template-columns:1fr}
+  .tides{grid-template-columns:1fr 1fr;max-height:none}
+}
+</style>
+</head>
+<body>
+<div id="app">
+<header>
+  <div>
+    <div class="brand">FISHING DASHBOARD</div>
+    <div id="date">Loading date…</div>
+  </div>
+  <div id="clock">--:--</div>
+</header>
+<div id="areaTabs"></div>
+<main>
+  <section class="card">
+    <div class="title"><h2 id="weatherTitle">Weather</h2><span class="small" id="weatherUpdated">—</span></div>
+    <div class="weatherTop">
+      <div id="weatherIcon" style="font-size:42px">☁️</div>
+      <div><div class="temp" id="temp">--°</div><div class="desc" id="desc">Loading…</div></div>
+    </div>
+    <div class="metrics">
+      <div class="metric"><b id="wind">--</b><span>WIND</span></div>
+      <div class="metric"><b id="gust">--</b><span>GUSTS</span></div>
+      <div class="metric"><b id="rain">--</b><span>RAIN</span></div>
+      <div class="metric"><b id="humidity">--</b><span>HUMIDITY</span></div>
+      <div class="metric"><b id="cloud">--</b><span>CLOUDS</span></div>
+      <div class="metric"><b id="pressure">--</b><span>PRESSURE</span></div>
+    </div>
+    <div class="status" id="weatherStatus">Weather data: Open-Meteo</div>
+  </section>
+
+  <section class="card">
+    <div class="title"><h2 id="tideTitle">Tides</h2><span class="small">NOAA</span></div>
+    <div class="next" id="nextTide">Loading tide data…</div>
+    <div class="tides" id="tides"></div>
+    <div class="status" id="tideStatus">Tide predictions are NOAA predictions for the selected reference station.</div>
+  </section>
+</main>
+</div>
+<script>
+const areas = {
+  "Alameda": {lat:37.7799,lon:-122.2822,station:"9414750",tideName:"Alameda"},
+  "San Pablo Bay": {lat:38.015,lon:-122.38,station:"9414863",tideName:"Richmond"},
+  "Delta / Tracy": {lat:37.7397,lon:-121.4252,station:"9415144",tideName:"Port Chicago (nearby Delta/Suisun reference)"},
+  "Half Moon Bay": {lat:37.4636,lon:-122.4286,station:"9414131",tideName:"Pillar Point Harbor"}
+};
+let selected="Alameda";
+
+const tabs=document.getElementById('areaTabs');
+Object.keys(areas).forEach(name=>{
+  const b=document.createElement('button'); b.className='tab'; b.textContent=name;
+  b.onclick=()=>{selected=name; [...tabs.children].forEach(x=>x.classList.remove('active')); b.classList.add('active'); loadAll();};
+  tabs.appendChild(b);
+});
+tabs.children[0].classList.add('active');
+
+function clock(){
+  const d=new Date();
+  document.getElementById('clock').textContent=d.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
+  document.getElementById('date').textContent=d.toLocaleDateString([], {weekday:'long',month:'long',day:'numeric',year:'numeric'});
+}
+setInterval(clock,1000); clock();
+
+function icon(code){
+  if(code===0) return "☀️";
+  if(code<=3) return "⛅";
+  if(code<=48) return "🌫️";
+  if(code<=67) return "🌧️";
+  if(code<=77) return "🌨️";
+  if(code<=82) return "🌦️";
+  return "⛈️";
+}
+function desc(code){
+  const m={0:"Clear",1:"Mostly clear",2:"Partly cloudy",3:"Overcast",45:"Fog",48:"Fog",51:"Light drizzle",53:"Drizzle",55:"Heavy drizzle",61:"Light rain",63:"Rain",65:"Heavy rain",71:"Light snow",73:"Snow",75:"Heavy snow",80:"Rain showers",81:"Rain showers",82:"Heavy showers",95:"Thunderstorm"};
+  return m[code]||"Current conditions";
+}
+async function weather(a){
+  const url=`https://api.open-meteo.com/v1/forecast?latitude=${a.lat}&longitude=${a.lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,rain,weather_code,cloud_cover,surface_pressure,wind_speed_10m,wind_gusts_10m,wind_direction_10m&wind_speed_unit=mph&temperature_unit=fahrenheit&timezone=America%2FLos_Angeles`;
+  const r=await fetch(url); if(!r.ok) throw new Error("Weather request failed");
+  const j=await r.json(), c=j.current;
+  document.getElementById('weatherTitle').textContent=`Weather • ${selected}`;
+  document.getElementById('weatherIcon').textContent=icon(c.weather_code);
+  document.getElementById('temp').textContent=Math.round(c.temperature_2m)+"°";
+  document.getElementById('desc').textContent=desc(c.weather_code);
+  document.getElementById('wind').textContent=Math.round(c.wind_speed_10m)+" mph";
+  document.getElementById('gust').textContent=Math.round(c.wind_gusts_10m)+" mph";
+  document.getElementById('rain').textContent=(c.precipitation??0).toFixed(1)+" mm";
+  document.getElementById('humidity').textContent=Math.round(c.relative_humidity_2m)+"%";
+  document.getElementById('cloud').textContent=Math.round(c.cloud_cover)+"%";
+  document.getElementById('pressure').textContent=Math.round(c.surface_pressure)+" hPa";
+  document.getElementById('weatherUpdated').textContent="Updated "+new Date().toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
+}
+async function tides(a){
+  const now=new Date();
+  const pad=n=>String(n).padStart(2,'0');
+  const date=s=>s.getFullYear()+pad(s.getMonth()+1)+pad(s.getDate());
+  const begin=date(now), end=date(new Date(now.getTime()+36*3600000));
+  const url=`https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=predictions&application=fishing-dashboard&begin_date=${begin}&end_date=${end}&datum=MLLW&station=${a.station}&time_zone=lst_ldt&units=english&interval=hilo&format=json`;
+  const r=await fetch(url); if(!r.ok) throw new Error("Tide request failed");
+  const j=await r.json();
+  if(j.error) throw new Error(j.error.message||"No tide data");
+  const events=(j.predictions||[]).filter(x=>new Date(x.t).getTime()>=now.getTime()-5*60000).slice(0,6);
+  document.getElementById('tideTitle').textContent=`Tides • ${a.tideName}`;
+  const box=document.getElementById('tides'); box.innerHTML="";
+  if(!events.length){box.innerHTML='<div class="tide">No upcoming predictions found.</div>';document.getElementById('nextTide').textContent="No upcoming tide found.";return;}
+  const n=events[0];
+  document.getElementById('nextTide').innerHTML=`Next: <b>${n.type==="H"?"HIGH":"LOW"} ${new Date(n.t).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})}</b> • ${Number(n.v).toFixed(1)} ft`;
+  events.forEach(x=>{
+    const d=new Date(x.t);
+    const el=document.createElement('div'); el.className='tide';
+    el.innerHTML=`<div class="type">${x.type==="H"?"HIGH":"LOW"}</div><div class="time">${d.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})}</div><div class="height">${Number(x.v).toFixed(1)} ft • ${d.toLocaleDateString([], {weekday:'short',month:'short',day:'numeric'})}</div>`;
+    box.appendChild(el);
+  });
+  document.getElementById('tideStatus').textContent=`NOAA prediction station: ${a.station}. ${selected==="Delta / Tracy"?"This is a nearby Port Chicago/Suisun Bay reference, not a tide gauge in the Tracy canals or Clifton Court Forebay.":""}`;
+}
+async function loadAll(){
+  const a=areas[selected];
+  document.getElementById('weatherStatus').textContent="Updating weather…";
+  try{await weather(a);document.getElementById('weatherStatus').textContent="Weather: Open-Meteo • refreshes automatically";}catch(e){document.getElementById('weatherStatus').textContent="Weather unavailable — check Wi‑Fi.";}
+  try{await tides(a);}catch(e){document.getElementById('tides').innerHTML='<div class="tide">Tide data unavailable. Check Wi‑Fi.</div>';document.getElementById('nextTide').textContent="NOAA tide data unavailable.";document.getElementById('tideStatus').textContent="NOAA tide service could not be reached."; }
+}
+loadAll();
+setInterval(loadAll,10*60*1000);
+</script>
+</body>
+</html>
