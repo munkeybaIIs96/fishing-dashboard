@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#050711">
+<title>Fishing Dashboard V7</title>
+<style>
+:root{
+  --bg:#050711;--panel:rgba(9,14,27,.88);--line:rgba(100,170,255,.24);
+  --cyan:#63e5ff;--blue:#55a7ff;--green:#76e36b;--orange:#ffbf5b;
+  --text:#edf4ff;--muted:#8390a8;
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:Arial,Segoe UI,sans-serif}
+body{
+ background:
+ radial-gradient(circle at 15% 15%,rgba(50,90,170,.16),transparent 35%),
+ radial-gradient(circle at 85% 85%,rgba(120,50,180,.13),transparent 35%),
+ #050711;
+}
+.app{height:100vh;padding:8px;display:grid;grid-template-rows:auto auto 1fr;gap:7px}
+header{
+ display:flex;align-items:center;justify-content:space-between;
+ padding:7px 10px;border:1px solid var(--line);border-radius:8px;
+ background:rgba(6,10,20,.9)
+}
+.brand{font-size:12px;font-weight:bold;letter-spacing:1.5px;color:var(--cyan)}
+.sub{font-size:8px;color:var(--muted);margin-top:2px;letter-spacing:1px}
+.clock{text-align:right;font-size:19px;font-variant-numeric:tabular-nums}
+.date{font-size:8px;color:var(--muted);margin-top:2px}
+.locations{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.loc{
+ min-width:0;padding:7px 5px;border:1px solid var(--line);border-radius:7px;
+ background:rgba(7,12,24,.9);color:#b7c5d9;font-size:9px;font-weight:bold;
+ letter-spacing:.7px;cursor:pointer
+}
+.loc.active{color:#fff;border-color:var(--cyan);box-shadow:0 0 12px rgba(99,229,255,.14)}
+main{min-height:0;display:grid;gap:7px}
+.panel{
+ min-width:0;min-height:0;overflow:hidden;padding:9px;
+ border:1px solid var(--line);border-radius:8px;background:var(--panel)
+}
+.title{font-size:9px;letter-spacing:1.4px;color:var(--cyan);font-weight:bold;margin-bottom:7px}
+.big{font-size:34px;font-weight:300;line-height:1}
+.muted{color:var(--muted)}
+.small{font-size:9px}
+.weatherTop{display:flex;justify-content:space-between;align-items:center}
+.icon{font-size:31px}
+.metrics{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--line);margin-top:8px}
+.metric{padding:7px 4px;border-bottom:1px solid var(--line);font-size:8px;color:var(--muted)}
+.metric:nth-child(odd){border-right:1px solid var(--line)}
+.metric b{display:block;color:var(--text);font-size:10px;margin-top:3px}
+.tides{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.tideBox{padding:8px;border:1px solid rgba(100,170,255,.18);border-radius:6px}
+.tideLabel{font-size:8px;color:var(--muted);letter-spacing:1px}
+.tideTime{font-size:19px;margin-top:4px;font-weight:bold}
+.high{color:var(--green)}.low{color:var(--blue)}
+.tideHeight{font-size:10px;margin-top:2px}
+.row{display:flex;justify-content:space-between;gap:8px;padding:6px 1px;border-bottom:1px solid rgba(100,170,255,.12);font-size:9px}
+.row:last-child{border:0}
+.snapshotScore{font-size:22px;font-weight:bold;color:var(--green);margin:2px 0 5px}
+.snapshotGrid{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.snap{padding:6px 4px;border:1px solid rgba(100,170,255,.12);border-radius:5px}
+.snap span{display:block;font-size:7px;color:var(--muted);letter-spacing:.8px}
+.snap b{display:block;font-size:9px;margin-top:3px}
+.tip{font-size:9px;line-height:1.45;color:#c0cad8}
+.graph{height:calc(100% - 22px);min-height:80px}
+svg{width:100%;height:100%;display:block}
+footer{display:none}
+@media (orientation:landscape){
+ main{
+  grid-template-columns:1fr 1.18fr 1fr;
+  grid-template-rows:1fr 1fr;
+ }
+ #weatherPanel{grid-column:1;grid-row:1}
+ #tidePanel{grid-column:2;grid-row:1}
+ #graphPanel{grid-column:3;grid-row:1}
+ #snapshotPanel{grid-column:1;grid-row:2}
+ #moonPanel{grid-column:2;grid-row:2}
+ #tipsPanel{grid-column:3;grid-row:2}
+}
+@media (orientation:portrait){
+ .app{padding:6px;gap:5px}
+ header{padding:6px 8px}.clock{font-size:16px}
+ .loc{font-size:8px;padding:6px 2px}
+ main{grid-template-columns:1fr 1fr;grid-template-rows:repeat(3,1fr)}
+ #weatherPanel{grid-column:1;grid-row:1}
+ #tidePanel{grid-column:2;grid-row:1}
+ #graphPanel{grid-column:1 / span 2;grid-row:2}
+ #snapshotPanel{grid-column:1;grid-row:3}
+ #moonPanel{grid-column:2;grid-row:3}
+ #tipsPanel{display:none}
+}
+@media (max-height:500px){
+ .app{padding:5px;gap:5px}
+ header{min-height:42px;padding:4px 7px}
+ .locations .loc{padding:5px 3px}
+ .panel{padding:7px}
+ .title{margin-bottom:5px}
+ .big{font-size:27px}
+ .tideTime{font-size:16px}
+ .row{padding:4px 1px}
+ .metric{padding:5px 3px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+ <div>
+  <div class="brand">🎣 FISHING // MISSION CONTROL</div>
+  <div class="sub">PLAN • CHECK • CATCH</div>
+ </div>
+ <div>
+  <div class="clock" id="clock">--:--:--</div>
+  <div class="date" id="date">---</div>
+ </div>
+</header>
+
+<div class="locations">
+ <button class="loc active" data-id="alameda">ALAMEDA</button>
+ <button class="loc" data-id="delta">DELTA / TRACY</button>
+ <button class="loc" data-id="sherman">SHERMAN ISLAND</button>
+ <button class="loc" data-id="sanpablo">SAN PABLO</button>
+</div>
+
+<main>
+<section class="panel" id="weatherPanel">
+ <div class="title">WEATHER • <span id="areaName">ALAMEDA</span></div>
+ <div class="weatherTop">
+  <div><div class="big" id="temp">--°</div><div id="condition" class="small">Loading...</div></div>
+  <div class="icon" id="weatherIcon">◌</div>
+ </div>
+ <div class="metrics">
+  <div class="metric">WIND<b id="wind">--</b></div>
+  <div class="metric">HUMIDITY<b id="humidity">--</b></div>
+  <div class="metric">PRESSURE<b id="pressure">--</b></div>
+  <div class="metric">FEELS LIKE<b id="feels">--</b></div>
+ </div>
+ <div class="row"><span>🌅 Sunrise</span><b id="sunrise">--</b></div>
+ <div class="row"><span>🌇 Sunset</span><b id="sunset">--</b></div>
+</section>
+
+<section class="panel" id="tidePanel">
+ <div class="title">TIDE OVERVIEW</div>
+ <div class="tides">
+  <div class="tideBox">
+   <div class="tideLabel">NEXT HIGH</div>
+   <div class="tideTime high" id="highTime">--:--</div>
+   <div class="tideHeight high" id="highHeight">-- ft</div>
+  </div>
+  <div class="tideBox">
+   <div class="tideLabel">NEXT LOW</div>
+   <div class="tideTime low" id="lowTime">--:--</div>
+   <div class="tideHeight low" id="lowHeight">-- ft</div>
+  </div>
+ </div>
+ <div class="row"><span class="muted">Tide trend</span><b id="trend" class="high">--</b></div>
+ <div class="row"><span class="muted">Tide range</span><b id="range">--</b></div>
+ <div class="row"><span class="muted">Last checked</span><b id="tideUpdated">--</b></div>
+</section>
+
+<section class="panel" id="graphPanel">
+ <div class="title">TIDE GRAPH</div>
+ <div class="graph">
+  <svg viewBox="0 0 600 260" preserveAspectRatio="none">
+   <g stroke="rgba(150,190,230,.12)" stroke-width="1">
+    <line x1="25" y1="35" x2="590" y2="35"/><line x1="25" y1="90" x2="590" y2="90"/>
+    <line x1="25" y1="145" x2="590" y2="145"/><line x1="25" y1="200" x2="590" y2="200"/>
+   </g>
+   <text x="28" y="250" fill="#8390a8" font-size="10">12 AM</text>
+   <text x="165" y="250" fill="#8390a8" font-size="10">6 AM</text>
+   <text x="300" y="250" fill="#8390a8" font-size="10">12 PM</text>
+   <text x="438" y="250" fill="#8390a8" font-size="10">6 PM</text>
+   <text x="545" y="250" fill="#8390a8" font-size="10">12 AM</text>
+   <path fill="none" stroke="#55a7ff" stroke-width="3" d="M25 150 C85 75 145 210 220 145 S330 55 405 125 S500 205 590 90"/>
+   <circle cx="405" cy="125" r="6" fill="#76e36b"/>
+  </svg>
+ </div>
+</section>
+
+<section class="panel" id="snapshotPanel">
+ <div class="title">FISHING SNAPSHOT</div>
+ <div class="snapshotScore" id="fishScore">GOOD</div>
+ <div class="small muted" id="snapshotText">Good starting conditions.</div>
+ <div class="snapshotGrid">
+  <div class="snap"><span>🌊 TIDE</span><b id="snapTide">--</b></div>
+  <div class="snap"><span>💨 WIND</span><b id="snapWind">--</b></div>
+  <div class="snap"><span>🌅 SUNRISE</span><b id="snapSunrise">--</b></div>
+  <div class="snap"><span>🌇 SUNSET</span><b id="snapSunset">--</b></div>
+  <div class="snap"><span>🌙 MOON</span><b id="snapMoon">--</b></div>
+  <div class="snap"><span>🎣 BEST WINDOW</span><b>EARLY / LATE</b></div>
+ </div>
+</section>
+
+<section class="panel" id="moonPanel">
+ <div class="title">MOON / CONDITIONS</div>
+ <div style="display:flex;align-items:center;gap:12px">
+  <div style="font-size:42px" id="moonEmoji">🌕</div>
+  <div>
+   <b id="moonName">Moon</b>
+   <div class="small muted">Illumination <span id="illumination">--</span>%</div>
+  </div>
+ </div>
+ <div class="row"><span>Water movement</span><b id="movement">--</b></div>
+ <div class="row"><span>Overall</span><b class="high">CHECK CONDITIONS</b></div>
+</section>
+
+<section class="panel" id="tipsPanel">
+ <div class="title">QUICK TIPS</div>
+ <div class="tip" id="tip">
+  Watch the tide change, not just the tide height. Outgoing water can create useful feeding movement around structure.
+ </div>
+ <div class="row"><span>Data source</span><b>NOAA / Open-Meteo</b></div>
+ <div class="row"><span>Status</span><b class="high">LIVE</b></div>
+</section>
+</main>
+</div>
+
+<script>
+const LOCATIONS={
+ alameda:{name:"ALAMEDA",lat:37.7775,lon:-122.2386,station:"9414750",tip:"Watch the tide change and current seams around structure. Early morning and late evening are good starting windows."},
+ delta:{name:"DELTA / TRACY",lat:37.7397,lon:-121.4252,station:null,tip:"For the Tracy / Bethany Reservoir area, use weather and water movement rather than an ocean tide station."},
+ sherman:{name:"SHERMAN ISLAND",lat:38.0570,lon:-121.8030,station:null,tip:"Sherman Island conditions can change quickly with wind and Delta flow. Focus on movement and weather."},
+ sanpablo:{name:"SAN PABLO",lat:38.0190,lon:-122.3140,station:"9414863",tip:"Current direction and moving water matter here. Check the tide trend around structure and current seams."}
+};
+let current="alameda",tideData=[];
+
+function clock(){
+ const d=new Date();
+ document.getElementById("clock").textContent=d.toLocaleTimeString([], {hour:"numeric",minute:"2-digit",second:"2-digit"});
+ document.getElementById("date").textContent=d.toLocaleDateString([], {weekday:"short",month:"short",day:"2-digit",year:"numeric"}).toUpperCase();
+}
+setInterval(clock,1000);clock();
+
+function fmtTime(x){return x?new Date(x).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"}):"--:--"}
+function wxText(c){
+ if(c===0)return"Clear";if(c<=3)return"Partly cloudy";if(c<=48)return"Fog";
+ if(c<=67)return"Rain";if(c<=77)return"Snow";if(c<=82)return"Showers";return"Thunderstorms";
+}
+function wxIcon(c){if(c===0)return"☀️";if(c<=3)return"🌤️";if(c<=48)return"🌫️";if(c<=67)return"🌧️";if(c<=82)return"🌦️";return"⛈️"}
+
+async function loadWeather(L){
+ try{
+  const u=`https://api.open-meteo.com/v1/forecast?latitude=${L.lat}&longitude=${L.lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,pressure_msl,wind_speed_10m,weather_code&daily=sunrise,sunset&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto&forecast_days=1`;
+  const d=await (await fetch(u)).json(),c=d.current;
+  document.getElementById("temp").textContent=Math.round(c.temperature_2m)+"°F";
+  document.getElementById("condition").textContent=wxText(c.weather_code);
+  document.getElementById("weatherIcon").textContent=wxIcon(c.weather_code);
+  document.getElementById("wind").textContent=Math.round(c.wind_speed_10m)+" mph";
+  document.getElementById("humidity").textContent=Math.round(c.relative_humidity_2m)+"%";
+  document.getElementById("pressure").textContent=(c.pressure_msl*.02953).toFixed(2)+" inHg";
+  document.getElementById("feels").textContent=Math.round(c.apparent_temperature)+"°F";
+  document.getElementById("sunrise").textContent=fmtTime(d.daily.sunrise[0]);
+  document.getElementById("sunset").textContent=fmtTime(d.daily.sunset[0]);
+  document.getElementById("snapWind").textContent=Math.round(c.wind_speed_10m)+" mph";
+  document.getElementById("snapSunrise").textContent=fmtTime(d.daily.sunrise[0]);
+  document.getElementById("snapSunset").textContent=fmtTime(d.daily.sunset[0]);
+  updateFishing(c.wind_speed_10m);
+ }catch(e){document.getElementById("condition").textContent="Weather unavailable"}
+}
+
+async function loadTides(L){
+ tideData=[];
+ if(!L.station){
+  ["highTime","lowTime","highHeight","lowHeight","range"].forEach(id=>document.getElementById(id).textContent="N/A");
+  document.getElementById("trend").textContent="FLOW / WEATHER";
+  document.getElementById("snapTide").textContent="FLOW / WEATHER";
+  document.getElementById("tideUpdated").textContent="LIVE";
+  document.getElementById("movement").textContent="DELTA FLOW";
+  return;
+ }
+ try{
+  const now=new Date(),start=new Date(now-6*3600000),end=new Date(now.getTime()+30*3600000);
+  const f=x=>x.toISOString().slice(0,10).replaceAll("-","");
+  const u=`https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=predictions&application=FishingDashboard&begin_date=${f(start)}&end_date=${f(end)}&datum=MLLW&station=${L.station}&time_zone=lst_ldt&units=english&interval=hilo&format=json`;
+  const d=await (await fetch(u)).json();
+  tideData=(d.predictions||[]).map(x=>({t:new Date(x.t),v:+x.v,type:x.type}));
+  const next=tideData.filter(x=>x.t>now),hi=next.find(x=>x.type==="H"),lo=next.find(x=>x.type==="L");
+  document.getElementById("highTime").textContent=fmtTime(hi?.t);
+  document.getElementById("lowTime").textContent=fmtTime(lo?.t);
+  document.getElementById("highHeight").textContent=hi?hi.v.toFixed(1)+" ft":"--";
+  document.getElementById("lowHeight").textContent=lo?lo.v.toFixed(1)+" ft":"--";
+  document.getElementById("trend").textContent=hi&&lo?(hi.t<lo.t?"RISING":"FALLING"):"--";
+  document.getElementById("snapTide").textContent=hi&&lo?(hi.t<lo.t?"RISING":"FALLING"):"--";
+  document.getElementById("range").textContent=hi&&lo?Math.abs(hi.v-lo.v).toFixed(1)+" ft":"--";
+  document.getElementById("tideUpdated").textContent=new Date().toLocaleTimeString([], {hour:"numeric",minute:"2-digit"});
+  document.getElementById("movement").textContent=hi&&lo?(hi.t<lo.t?"RISING":"FALLING"):"--";
+ }catch(e){
+  document.getElementById("tideUpdated").textContent="NOAA OFFLINE";
+ }
+}
+
+function moon(){
+ const syn=29.530588853,known=new Date("2000-01-06T18:14:00Z");
+ let age=((Date.now()-known)/86400000%syn+syn)%syn;
+ const illum=Math.round((1-Math.cos(2*Math.PI*age/syn))/2*100);
+ const names=["NEW","WAXING CRESCENT","FIRST QUARTER","WAXING GIBBOUS","FULL","WANING GIBBOUS","LAST QUARTER","WANING CRESCENT"];
+ const em=["🌑","🌒","🌓","🌔","🌕","🌖","🌗","🌘"],i=Math.floor(age/syn*8+.5)%8;
+ document.getElementById("moonEmoji").textContent=em[i];
+ document.getElementById("moonName").textContent=names[i];
+ document.getElementById("illumination").textContent=illum;
+ document.getElementById("snapMoon").textContent=names[i];
+}
+function updateFishing(wind){
+ const score=wind<=12?"GOOD":wind<=18?"FAIR":"SLOW";
+ const el=document.getElementById("fishScore");el.textContent=score;
+ el.style.color=score==="GOOD"?"var(--green)":score==="FAIR"?"var(--orange)":"#ff6d7d";
+ document.getElementById("snapshotText").textContent=
+ score==="GOOD"?"Good starting conditions. Watch tide movement and structure.":
+ score==="FAIR"?"Fishable, but keep an eye on wind and water movement.":
+ "Wind may make conditions tougher; sheltered water may be better.";
+}
+async function load(id){
+ current=id;const L=LOCATIONS[id];
+ document.querySelectorAll(".loc").forEach(b=>b.classList.toggle("active",b.dataset.id===id));
+ document.getElementById("areaName").textContent=L.name;
+ document.getElementById("tip").textContent=L.tip;
+ moon();
+ await Promise.allSettled([loadWeather(L),loadTides(L)]);
+}
+document.querySelectorAll(".loc").forEach(b=>b.onclick=()=>load(b.dataset.id));
+load("alameda");
+setInterval(()=>loadWeather(LOCATIONS[current]),15*60*1000);
+setInterval(()=>loadTides(LOCATIONS[current]),15*60*1000);
+</script>
+</body>
+</html>
