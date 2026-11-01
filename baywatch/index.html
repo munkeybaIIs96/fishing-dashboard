@@ -7,6 +7,32 @@
 :root{--bg:#06101b;--panel:#0b1a29;--panel2:#0d2031;--line:#1b3b50;--cyan:#53d9ef;--blue:#3998d5;--text:#d9e8f2;--muted:#7f9aab;--amber:#f1b65a;--green:#63d6a1;--red:#f07878}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:radial-gradient(ellipse at 50% 10%,#102a3b 0,#071522 42%,#040a12 100%);color:var(--text);font-family:Arial,Helvetica,sans-serif}body:before{content:"";position:fixed;inset:0;background-image:linear-gradient(#18354a33 1px,transparent 1px),linear-gradient(90deg,#18354a33 1px,transparent 1px);background-size:34px 34px;opacity:.22;pointer-events:none}.screen{height:100%;width:100%;padding:34px 38px 28px;display:flex;flex-direction:column;gap:18px;max-width:1200px;margin:auto}.top{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid var(--line);padding-bottom:14px}.eyebrow,.section-kicker{font-size:11px;letter-spacing:2.4px;color:var(--cyan);font-weight:700}.brand{font-size:25px;letter-spacing:2px;font-weight:800;margin-top:6px}.sub{font-size:11px;color:var(--muted);letter-spacing:1.5px;margin-top:5px}.clock{text-align:right}.time{font-size:27px;font-weight:700;letter-spacing:1px;font-variant-numeric:tabular-nums}.date{font-size:11px;color:var(--muted);letter-spacing:1.4px;margin-top:4px}.status{font-size:10px;color:var(--green);letter-spacing:1.5px;margin-top:8px}.panel{background:linear-gradient(145deg,#0c1d2cdd,#091522ee);border:1px solid var(--line);border-radius:8px;padding:18px 20px;box-shadow:0 12px 36px #0005;min-height:0}.panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.panel-title{font-size:13px;font-weight:800;letter-spacing:1.8px}.tag{font-size:9px;color:var(--cyan);border:1px solid #28536a;padding:4px 7px;border-radius:3px;letter-spacing:1px}.hero{flex:1.2;display:flex;flex-direction:column;min-height:0}.hero-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px}.stat{background:#071522;border:1px solid #173449;padding:9px 11px;border-radius:4px}.stat-label{font-size:9px;color:var(--muted);letter-spacing:1.3px}.stat-value{font-size:20px;font-weight:700;margin-top:4px;font-variant-numeric:tabular-nums}.stat-unit{font-size:10px;color:var(--muted);font-weight:400}.graph-wrap{position:relative;flex:1;min-height:0}.graph{width:100%;height:100%;display:block;overflow:visible}.graph text{font-family:Arial,sans-serif;fill:#7894a7;font-size:10px}.graph .axis{stroke:#274457;stroke-width:1}.graph .grid{stroke:#193448;stroke-width:1;stroke-dasharray:3 5}.graph .curve{fill:none;stroke:var(--cyan);stroke-width:3;filter:drop-shadow(0 0 5px #53d9ef66)}.graph .fill{fill:url(#areaGradient)}.graph .nowline{stroke:var(--amber);stroke-width:1.5;stroke-dasharray:4 4}.graph .nowdot{fill:var(--amber);stroke:#fff2d7;stroke-width:1}.graph .tick{stroke:#426075;stroke-width:1}.highlow{display:flex;gap:16px;font-size:11px;color:var(--muted)}.highlow b{color:var(--text);font-weight:700}.lower{display:grid;grid-template-columns:1fr 1fr;gap:18px;flex:.9;min-height:0}.stations{display:flex;flex-direction:column;gap:0}.station{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #173247}.station:last-child{border:0}.station-name{font-size:12px;font-weight:700}.station-meta{font-size:9px;color:var(--muted);margin-top:4px}.station-value{text-align:right;font-size:18px;font-weight:700;font-variant-numeric:tabular-nums}.station-value small{font-size:9px;color:var(--muted);font-weight:400}.weather-now{display:flex;align-items:center;justify-content:space-between;margin:7px 0 12px}.temp{font-size:38px;font-weight:700}.condition{text-align:right;font-size:12px;color:var(--muted)}.weather-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.weather-cell{background:#071522;padding:9px;border:1px solid #173449;border-radius:4px}.weather-cell span{display:block;font-size:9px;color:var(--muted);letter-spacing:1px}.weather-cell b{display:block;font-size:15px;margin-top:5px}.hourly{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-top:12px}.hour{border-top:1px solid #23465b;padding-top:7px;text-align:center}.hour small{font-size:9px;color:var(--muted)}.hour b{display:block;font-size:12px;margin-top:5px}.bottom{display:flex;justify-content:space-between;align-items:center;color:#638093;font-size:9px;letter-spacing:1.2px;border-top:1px solid var(--line);padding-top:10px}.bottom strong{color:var(--cyan);font-weight:700}.loading{color:var(--muted);font-size:11px}.error{color:var(--amber);font-size:10px;margin-top:6px}
 @media(max-height:900px){.screen{padding:18px 22px;gap:10px}.panel{padding:12px 14px}.brand{font-size:20px}.time{font-size:22px}.stat-value{font-size:17px}.lower{gap:10px}.station{padding:7px 0}.weather-grid{gap:5px}.weather-cell{padding:6px}}
 @media(max-width:700px){.screen{padding:18px;gap:10px}.lower{grid-template-columns:1fr;overflow:auto}.hero{min-height:390px}.lower .panel{min-height:230px}.top{gap:10px}.brand{font-size:18px}.time{font-size:20px}}
+
+/* Portrait layout refinement: give the tide chart breathing room */
+.screen{gap:14px}
+.hero{flex:0 0 40%;overflow:hidden}
+.graph-wrap{flex:0 0 270px;min-height:220px;max-height:270px;margin:4px 4px 2px}
+.graph{height:100%;width:100%}
+.hero-stats{gap:10px;margin:4px 0 10px}
+.stat{padding:11px 13px}
+.panel-head{margin-bottom:14px}
+.highlow{padding-top:6px;gap:18px;flex-wrap:wrap}
+.lower{flex:1;min-height:0;gap:14px}
+.lower .panel{padding:20px 22px}
+.station{padding:14px 0}
+.weather-now{margin:14px 0 18px}
+.weather-cell{padding:12px}
+.hourly{margin-top:18px;gap:8px}
+@media(max-height:1200px){
+ .hero{flex:0 0 43%}
+ .graph-wrap{flex-basis:230px;max-height:230px}
+}
+@media(max-width:700px){
+ .hero{flex:0 0 auto;min-height:0}
+ .graph-wrap{flex-basis:220px;min-height:200px}
+ .lower{flex:1}
+}
+
 </style></head>
 <body><main class="screen">
 <header class="top"><div><div class="eyebrow">FIELD OPERATIONS // BAY AREA</div><div class="brand">BAYWATCH <span style="color:var(--cyan)">//</span> FISHING MISSION CONTROL</div><div class="sub">ALAMEDA TIDAL STATION · HAYWARD WEATHER NODE</div></div><div class="clock"><div class="time" id="clock">--:--:--</div><div class="date" id="date">LOADING LOCAL TIME</div><div class="status">● SYSTEM ONLINE</div></div></header>
